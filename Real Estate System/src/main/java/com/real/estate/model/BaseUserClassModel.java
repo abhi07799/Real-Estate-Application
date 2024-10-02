@@ -20,15 +20,21 @@ public abstract class BaseUserClassModel
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
 
+    @Column(nullable = false)
     private String fullName;
 
+    @Column(unique = true, nullable = false)
     private String email;
 
+//    private String mobileNumber;
+
+    @Column(nullable = false)
     private String password;
 
     @CreationTimestamp
     @Column(updatable = false)
     private LocalDateTime createdAt;
 
+    @Column(nullable = false)
     private String role;
 }

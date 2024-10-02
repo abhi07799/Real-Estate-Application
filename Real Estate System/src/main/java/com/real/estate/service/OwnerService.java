@@ -2,7 +2,8 @@ package com.real.estate.service;
 
 import com.real.estate.dto.request.OwnerRequestDto;
 import com.real.estate.dto.response.OwnerResponseDto;
-import com.real.estate.exception.NoResourceFoundException;
+import com.real.estate.exception.NoResourceAvailableException;
+import com.real.estate.exception.ResourceAlreadyExistException;
 import com.real.estate.model.OwnerModel;
 import com.real.estate.repository.OwnerRepository;
 import org.modelmapper.ModelMapper;
@@ -24,6 +25,10 @@ public class OwnerService
     public OwnerResponseDto addOwner(OwnerRequestDto ownerRequestDto)
     {
         OwnerModel ownerModel = mapper.map(ownerRequestDto, OwnerModel.class);
+        if(ownerRepo.existsByEmail(ownerModel.getEmail()))
+        {
+            throw new ResourceAlreadyExistException("Owner with this Email already exists");
+        }
         return mapper.map(ownerRepo.save(ownerModel), OwnerResponseDto.class);
     }
 
@@ -33,7 +38,7 @@ public class OwnerService
         List<OwnerResponseDto> ownerResponseDtoList = ownerModelList.stream().map(ownerModel -> mapper.map(ownerModel, OwnerResponseDto.class)).toList();
         if(ownerResponseDtoList.isEmpty())
         {
-            throw new NoResourceFoundException("No owners found");
+            throw new NoResourceAvailableException("No owners found");
         }
         return ownerResponseDtoList;
     }
@@ -43,7 +48,7 @@ public class OwnerService
         Optional<OwnerModel> ownerModel = ownerRepo.findById(ownerId);
         if(ownerModel.isEmpty())
         {
-            throw new NoResourceFoundException("No owners found with id: " + ownerId);
+            throw new NoResourceAvailableException("No owners found with id: " + ownerId);
         }
         return mapper.map(ownerModel.get(), OwnerResponseDto.class);
     }

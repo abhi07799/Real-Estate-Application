@@ -2,7 +2,8 @@ package com.real.estate.service;
 
 import com.real.estate.dto.request.AdminRequestDto;
 import com.real.estate.dto.response.AdminResponseDto;
-import com.real.estate.exception.NoResourceFoundException;
+import com.real.estate.exception.NoResourceAvailableException;
+import com.real.estate.exception.ResourceAlreadyExistException;
 import com.real.estate.model.AdminModel;
 import com.real.estate.repository.AdminRepository;
 import org.modelmapper.ModelMapper;
@@ -24,6 +25,10 @@ public class AdminService
     public AdminResponseDto addAdmin(AdminRequestDto adminRequestDto)
     {
         AdminModel adminModel = mapper.map(adminRequestDto, AdminModel.class);
+        if(adminRepo.existsByEmail(adminModel.getEmail()))
+        {
+            throw new ResourceAlreadyExistException("Admin with this Email already exists");
+        }
         return mapper.map(adminRepo.save(adminModel), AdminResponseDto.class);
     }
 
@@ -33,7 +38,7 @@ public class AdminService
         List<AdminResponseDto> adminResponseDtoList = adminModelList.stream().map(adminModel -> mapper.map(adminModel, AdminResponseDto.class)).toList();
         if(adminResponseDtoList.isEmpty())
         {
-            throw new NoResourceFoundException("No admins found");
+            throw new NoResourceAvailableException("No admin found");
         }
         return adminResponseDtoList;
     }
@@ -43,7 +48,7 @@ public class AdminService
         Optional<AdminModel> adminModel = adminRepo.findById(adminId);
         if(adminModel.isEmpty())
         {
-            throw new NoResourceFoundException("No admins found with id: " + adminId);
+            throw new NoResourceAvailableException("No admin found with id: " + adminId);
         }
         return mapper.map(adminModel.get(), AdminResponseDto.class);
     }

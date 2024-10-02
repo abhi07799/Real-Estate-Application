@@ -10,4 +10,6 @@ import java.util.Optional;
 public interface OwnerRepository extends JpaRepository<OwnerModel, Long>
 {
     Optional<OwnerModel> findById(long id);
+
+    boolean existsByEmail(String email);
 }

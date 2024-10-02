@@ -13,6 +13,8 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 public class AdminResponseDto
 {
+    private long id;
+
     private String fullName;
 
     private String email;
