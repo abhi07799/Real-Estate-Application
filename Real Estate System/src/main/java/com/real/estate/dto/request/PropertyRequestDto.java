@@ -23,23 +23,23 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 public class PropertyRequestDto
 {
-    @NotEmpty
+    @NotEmpty(message = "Title should be empty")
     @NotNull
     private String propertyTitle;
 
-    @NotEmpty
+    @NotEmpty(message = "description should not be empty")
     private String propertyDescription;
 
-    @NotEmpty
+    @NotEmpty(message = "price should not be empty")
     private String propertyPrice;
 
-    @NotEmpty
+    @NotEmpty(message = "address should not be empty")
     private String propertyAddress;
 
-    @NotEmpty
+    @NotEmpty(message = "property type should not be empty")
     private String propertyType;
 
-    @NotEmpty
+    @NotEmpty(message = "owner should not be empty")
     private OwnerModel owner;
 
 }

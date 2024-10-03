@@ -27,4 +27,6 @@ public class AdminRequestDto
     @NotEmpty(message = "Role can not be empty")
     @Pattern(regexp = "ADMIN|OWNER|CUSTOMER|admin|owner|customer", message = "Role must be either ADMIN, OWNER, or CUSTOMER (No Case Sensitive)")
     private String role;
+
+    private String mobileNumber;
 }

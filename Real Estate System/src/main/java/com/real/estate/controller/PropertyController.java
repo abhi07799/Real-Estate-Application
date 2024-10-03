@@ -56,7 +56,7 @@ public class PropertyController
         return new ResponseEntity<>(propertyService.rejectPropertyById(adminId, propertyId), HttpStatus.OK);
     }
 
-    @PutMapping("customer/{customerId}/purchaseProperty/{propertyId}")
+    @GetMapping("customer/{customerId}/purchaseProperty/{propertyId}")
     public ResponseEntity<?> purchaseProperty(@PathVariable Long customerId, @PathVariable Long propertyId)
     {
         return new ResponseEntity<>(propertyService.purchaseProperty(customerId, propertyId), HttpStatus.OK);

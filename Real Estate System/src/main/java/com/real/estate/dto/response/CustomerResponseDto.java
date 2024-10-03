@@ -2,10 +2,7 @@ package com.real.estate.dto.response;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.real.estate.model.PropertyModel;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -14,6 +11,7 @@ import java.util.List;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
+@Builder
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class CustomerResponseDto
 {
@@ -30,4 +28,6 @@ public class CustomerResponseDto
     private String role;
 
     private List<PropertyModel> purchasedProperties;
+
+    private String mobileNumber;
 }

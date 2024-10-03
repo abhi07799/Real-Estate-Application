@@ -1,6 +1,9 @@
 package com.real.estate.service;
 
 import com.real.estate.dto.request.PropertyRequestDto;
+import com.real.estate.dto.response.CustomerResponseDto;
+import com.real.estate.dto.response.OwnerResponseDto;
+import com.real.estate.dto.response.PropertyPurchaseResponseDto;
 import com.real.estate.dto.response.PropertyResponseDto;
 import com.real.estate.exception.NoResourceAvailableException;
 import com.real.estate.model.AdminModel;
@@ -15,7 +18,9 @@ import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 @Service
@@ -60,7 +65,16 @@ public class PropertyService
             throw new NoResourceAvailableException("No Properties Found");
         }
 
-        return models.stream().map(response -> mapper.map(response, PropertyResponseDto.class)).toList();
+        List<PropertyResponseDto> responseDtoList = models.stream().map(model ->
+                {
+                    OwnerModel ownerModel = model.getOwner();
+                    PropertyResponseDto propertyResponseDto = mapper.map(model, PropertyResponseDto.class);
+                    OwnerResponseDto ownerResponse = convertToDto(ownerModel);
+                    propertyResponseDto.setOwner(ownerResponse);
+                    return propertyResponseDto;
+                })
+                .toList();
+        return responseDtoList;
     }
 
     //owner admin user
@@ -72,7 +86,11 @@ public class PropertyService
         {
             throw new NoResourceAvailableException("No Property Found with ID: " + propertyId);
         }
-        return mapper.map(property.get(), PropertyResponseDto.class);
+
+        PropertyResponseDto response = mapper.map(property.get(), PropertyResponseDto.class);
+        OwnerResponseDto ownerResponse = convertToDto(property.get().getOwner());
+        response.setOwner(ownerResponse);
+        return response;
     }
 
     //user
@@ -83,7 +101,16 @@ public class PropertyService
         {
             throw new NoResourceAvailableException("No Property Found with Title: " + propertyTitle);
         }
-        return propertyList.stream().map(response -> mapper.map(response, PropertyResponseDto.class)).toList();
+        List<PropertyResponseDto> responseDtoList = propertyList.stream().map(model ->
+                {
+                    OwnerModel ownerModel = model.getOwner();
+                    PropertyResponseDto propertyResponseDto = mapper.map(model, PropertyResponseDto.class);
+                    OwnerResponseDto ownerResponse = convertToDto(ownerModel);
+                    propertyResponseDto.setOwner(ownerResponse);
+                    return propertyResponseDto;
+                })
+                .toList();
+        return responseDtoList;
     }
 
     //admin
@@ -99,10 +126,14 @@ public class PropertyService
         {
             throw new NoResourceAvailableException("No Admin Found with ID: " + adminId);
         }
-        PropertyModel propertyModel = mapper.map(property.get(), PropertyModel.class);
+        PropertyModel propertyModel = property.get();
         propertyModel.setPropertyApproval("Approved");
-        propertyModel.setApprovedByAdmin(admin.get());
-        return mapper.map(propertyRepo.save(propertyModel), PropertyResponseDto.class);
+        propertyModel.setPropertyStatus("Active");
+        propertyModel.setApprovedByAdmin(changeAdminDetails(admin.get()));
+        PropertyResponseDto response = mapper.map(propertyRepo.save(propertyModel), PropertyResponseDto.class);
+        OwnerResponseDto ownerResponse = convertToDto(property.get().getOwner());
+        response.setOwner(ownerResponse);
+        return response;
     }
 
     //admin
@@ -119,14 +150,18 @@ public class PropertyService
             throw new NoResourceAvailableException("No Property Found with ID: " + propertyId);
         }
 
-        PropertyModel propertyModel = mapper.map(property.get(), PropertyModel.class);
+        PropertyModel propertyModel = property.get();
         propertyModel.setPropertyApproval("Reject");
-        propertyModel.setApprovedByAdmin(admin.get());
-        return mapper.map(propertyRepo.save(propertyModel), PropertyResponseDto.class);
+        propertyModel.setPropertyStatus("InActive");
+        propertyModel.setApprovedByAdmin(changeAdminDetails(admin.get()));
+        PropertyResponseDto response = mapper.map(propertyRepo.save(propertyModel), PropertyResponseDto.class);
+        OwnerResponseDto ownerResponse = convertToDto(property.get().getOwner());
+        response.setOwner(ownerResponse);
+        return response;
     }
 
     //user
-    public PropertyResponseDto purchaseProperty(long customerId, long propertyId)
+    public PropertyPurchaseResponseDto purchaseProperty(long customerId, long propertyId)
     {
         Optional<PropertyModel> property = propertyRepo.findById(propertyId);
         if (property.isEmpty())
@@ -138,14 +173,18 @@ public class PropertyService
         {
             throw new NoResourceAvailableException("No Customer Found with ID: " + customerId);
         }
-        PropertyModel propertyModel = mapper.map(customer.get(), PropertyModel.class);
+        PropertyModel propertyModel = property.get();
         propertyModel.setPropertyStatus("Sold");
-        propertyModel.setPurchasedByCustomer(customer.get());
-        return mapper.map(propertyRepo.save(propertyModel), PropertyResponseDto.class);
+//        propertyModel.setPurchasedByCustomer(customer.get());
+        PropertyResponseDto propertyResponse = mapper.map(propertyRepo.save(propertyModel), PropertyResponseDto.class);
+        PropertyPurchaseResponseDto purchaseResponseDto = mapper.map(propertyResponse, PropertyPurchaseResponseDto.class);
+        purchaseResponseDto.setOwnerDetails(convertToCustomerDto(customer.get()));
+
+        return purchaseResponseDto;
     }
 
     //owner
-    public PropertyResponseDto removeProperty(long propertyId)
+    public Map<String, String> removeProperty(long propertyId)
     {
         Optional<PropertyModel> property = propertyRepo.findById(propertyId);
         if (property.isEmpty())
@@ -155,6 +194,29 @@ public class PropertyService
 
         PropertyModel propertyModel = property.get();
         propertyModel.setPropertyStatus("InActive");
-        return mapper.map(propertyRepo.save(propertyModel), PropertyResponseDto.class);
+        PropertyModel propertySaved = propertyRepo.save(propertyModel);
+        Map<String, String> map = new HashMap<>();
+        map.put("Message  ","Property { "+propertySaved.getPropertyTitle()+" } has been removed Successfully");
+        return map;
+    }
+
+    public OwnerResponseDto convertToDto(OwnerModel ownerModel)
+    {
+        return new OwnerResponseDto().builder().id(ownerModel.getId()).fullName(ownerModel.getFullName()).email(ownerModel.getEmail()).mobileNumber(ownerModel.getMobileNumber()).build();
+    }
+
+    public CustomerResponseDto convertToCustomerDto(CustomerModel customerModel)
+    {
+        return new CustomerResponseDto().builder().id(customerModel.getId()).fullName(customerModel.getFullName()).email(customerModel.getEmail()).mobileNumber(customerModel.getMobileNumber()).build();
+    }
+
+    public AdminModel changeAdminDetails(AdminModel adminModel)
+    {
+        AdminModel admin = new AdminModel();
+        admin.setId(adminModel.getId());
+        admin.setFullName(adminModel.getFullName());
+        admin.setEmail(adminModel.getEmail());
+        admin.setMobileNumber(adminModel.getMobileNumber());
+        return admin;
     }
 }

@@ -1,10 +1,7 @@
 package com.real.estate.model;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 
 import java.time.LocalDateTime;
@@ -26,7 +23,8 @@ public abstract class BaseUserClassModel
     @Column(unique = true, nullable = false)
     private String email;
 
-//    private String mobileNumber;
+    @Column(unique = true, nullable = false)
+    private String mobileNumber;
 
     @Column(nullable = false)
     private String password;

@@ -47,13 +47,13 @@ public class RealEstateGlobalExceptionHandler
         new ErrorDto();
         ErrorDto error = ErrorDto.builder()
                 .timestamp(LocalDateTime.now())
-                .status(HttpStatus.NOT_FOUND.value())
+                .status(HttpStatus.INTERNAL_SERVER_ERROR.value())
                 .error("Internal Server Error")
                 .message(ex.getMessage())
                 .path(path)
                 .exceptionStackTrace(ExceptionUtils.getStackTrace(ex))
                 .build();
-        return new ResponseEntity<ErrorDto>(error, HttpStatus.NOT_FOUND);
+        return new ResponseEntity<ErrorDto>(error, HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)

@@ -1,9 +1,6 @@
 package com.real.estate.dto.response;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import com.real.estate.model.AdminModel;
-import com.real.estate.model.CustomerModel;
-import com.real.estate.model.OwnerModel;
 import lombok.*;
 
 import java.time.LocalDateTime;
@@ -14,7 +11,7 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @Builder
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class PropertyResponseDto
+public class PropertyPurchaseResponseDto
 {
     private long id;
 
@@ -32,14 +29,9 @@ public class PropertyResponseDto
 
     private String propertyStatus;
 
-    private OwnerResponseDto owner;
-
-    private CustomerModel purchasedByCustomer;
-
-    private AdminModel approvedByAdmin;
+    private CustomerResponseDto ownerDetails;
 
     private LocalDateTime propertyCreatedDate;
 
     private LocalDateTime propertyUpdatedDate;
-
 }
